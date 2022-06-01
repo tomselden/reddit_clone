@@ -3,6 +3,11 @@ import React, { useState } from "react";
 import Avatar from "./Avatar";
 import { LinkIcon, PhotographIcon } from "@heroicons/react/outline";
 import { useForm } from "react-hook-form";
+import { useMutation } from "@apollo/client";
+import { ADD_POST, ADD_SUBREDDIT } from "../grapql/mutations";
+import client from "../apollo-client";
+import { GET_SUBREDDIT_BY_TOPIC } from "../grapql/queries";
+import toast from "react-hot-toast";
 
 type FormData = {
   postTitle: string;
@@ -13,6 +18,9 @@ type FormData = {
 
 function PostBox() {
   const { data: session } = useSession();
+  const [addPost] = useMutation(ADD_POST);
+  const [addSubreddit] = useMutation(ADD_SUBREDDIT);
+
   const [imageBoxOpen, setImageBoxOpen] = useState(false);
   const {
     register,
@@ -24,6 +32,80 @@ function PostBox() {
 
   const onSubmit = handleSubmit(async (FormData) => {
     console.log(FormData);
+    const notification = toast.loading('Creating new post...')
+
+    try {
+      // query for subreddit topic
+      const {
+        data: { getSubredditListByTopic },
+      } = await client.query({
+        query: GET_SUBREDDIT_BY_TOPIC,
+        variables: {
+          topic: FormData.subreddit,
+        },
+      });
+
+      const subredditExists = getSubredditListByTopic.length > 0;
+
+      if (!subredditExists) {
+        // create subreddit
+        console.log("Subreddit is new, creating new Subreddit");
+
+        const {
+          data: { insertSubreddit: newSubreddit },
+        } = await addSubreddit({
+          variables: {
+            topic: FormData.subreddit,
+          },
+        });
+
+        console.log("Creating post...", FormData);
+        const image = FormData.postImage || "";
+
+        const {
+          data: { insertPost: newPost },
+        } = await addPost({
+          variables: {
+            body: FormData.postBody,
+            image: image,
+            subreddit_id: newSubreddit.id,
+            title: FormData.postTitle,
+            username: session?.user?.name,
+          },
+        });
+
+        console.log("New post added:", newPost);
+      } else {
+        // use existing subreddit
+        console.log("Using existing subreddit!");
+        console.log(getSubredditListByTopic);
+
+        const image = FormData.postImage || "";
+
+        const {
+          data: { insertPost: newPost },
+        } = await addPost({
+          variables: {
+            body: FormData.postBody,
+            image: image,
+            subreddit_id: getSubredditListByTopic[0].id,
+            title: FormData.postTitle,
+            username: session?.user?.name,
+          },
+        });
+      }
+    //   after post is added
+    setValue('postBody', '')
+    setValue('postImage', '')
+    setValue('postTitle', '')
+    setValue('subreddit', '')
+
+    toast.success('New Post Created', {
+        id: notification
+    })
+    } catch (error) {
+        toast.error('Whoops something went wrong')
+    }
   });
 
   return (
@@ -70,7 +152,7 @@ function PostBox() {
             <p className="min-w-[90px]">Subreddit:</p>
             <input
               className="m-2 flex-1 bg-blue-50 p-2 outline-none"
-              {...register("subreddit", {required: true })}
+              {...register("subreddit", { required: true })}
               type="text"
               placeholder="i.e. NextJS"
             />
