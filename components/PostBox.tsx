@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import { ADD_POST, ADD_SUBREDDIT } from "../grapql/mutations";
 import client from "../apollo-client";
-import { GET_SUBREDDIT_BY_TOPIC } from "../grapql/queries";
+import { GET_ALL_POSTS, GET_SUBREDDIT_BY_TOPIC } from "../grapql/queries";
 import toast from "react-hot-toast";
 
 type FormData = {
@@ -18,7 +18,9 @@ type FormData = {
 
 function PostBox() {
   const { data: session } = useSession();
-  const [addPost] = useMutation(ADD_POST);
+  const [addPost] = useMutation(ADD_POST, {
+    refetchQueries: [GET_ALL_POSTS, "getPostList"],
+  });
   const [addSubreddit] = useMutation(ADD_SUBREDDIT);
 
   const [imageBoxOpen, setImageBoxOpen] = useState(false);
@@ -32,7 +34,7 @@ function PostBox() {
 
   const onSubmit = handleSubmit(async (FormData) => {
     console.log(FormData);
-    const notification = toast.loading('Creating new post...')
+    const notification = toast.loading("Creating new post...");
 
     try {
       // query for subreddit topic
@@ -94,17 +96,17 @@ function PostBox() {
           },
         });
       }
-    //   after post is added
-    setValue('postBody', '')
-    setValue('postImage', '')
-    setValue('postTitle', '')
-    setValue('subreddit', '')
+      //   after post is added
+      setValue("postBody", "");
+      setValue("postImage", "");
+      setValue("postTitle", "");
+      setValue("subreddit", "");
 
-    toast.success('New Post Created', {
-        id: notification
-    })
+      toast.success("New Post Created", {
+        id: notification,
+      });
     } catch (error) {
-        toast.error('Whoops something went wrong')
+      toast.error("Whoops something went wrong");
     }
   });
 
