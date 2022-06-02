@@ -27,6 +27,7 @@ type Post = {
     image: string 
     subreddit_id: number 
     title: string 
+    username: string
     votes: Vote[]
     comments: Comments[]
     subreddit: Subreddit[]

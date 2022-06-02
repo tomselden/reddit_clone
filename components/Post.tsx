@@ -17,6 +17,7 @@ import toast from "react-hot-toast";
 import { useMutation, useQuery } from "@apollo/client";
 import { GET_ALL_VOTES_BY_POST_ID } from "../grapql/queries";
 import { ADD_VOTE } from "../grapql/mutations";
+import Subreddit from "../pages/subreddit/[topic]";
 
 type Props = {
   post: Post;
@@ -119,7 +120,7 @@ function Post({ post }: Props) {
                 </span>
               </Link>
               ⏺Posted by u/
-              {post.username} <TimeAgo date={post.created_at} />
+              {post?.username} <TimeAgo date={post.created_at} />
             </p>
           </div>
 
