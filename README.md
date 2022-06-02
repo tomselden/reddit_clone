@@ -22,7 +22,6 @@ https://reddit-clone-453f0hcoh-tomselden.vercel.app/
 
 **Mainly Written In** 
 * Typescript
-* JavaScript
 
 
 **Features So Far** 
