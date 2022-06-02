@@ -55,7 +55,7 @@ type Vote {
       arguments: [{ name: "id", field: "post_id" }]
     )
   post_id: ID
-  upvote: Int
+  upvote: Boolean
   username: String
 }
 
@@ -95,6 +95,17 @@ type Query {
       type: "postgresql"
       query: """
       select * from "subreddit" where "id" = $1
+      """
+      configuration: "postgresql_config"
+    )
+
+  getSubredditListLimit(limit: Int!): [Subreddit]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      select * from "subreddit"
+      order by "created_at" desc
+      limit $1
       """
       configuration: "postgresql_config"
     )
@@ -145,26 +156,7 @@ type Query {
       table: "post"
       configuration: "postgresql_config"
     )
-  getCommentUsingPost_id(id: ID!): [Comment]
-    @dbquery(
-      type: "postgresql"
-      query: """
-      SELECT T."created_at", T."id", T."post_id", T."text", T."username"
-        FROM "public"."comment" T
-        WHERE T."post_id" = $1
-      """
-      configuration: "postgresql_config"
-    )
-  getVoteUsingPost_id(id: ID!): [Vote]
-    @dbquery(
-      type: "postgresql"
-      query: """
-      SELECT T."created_at", T."id", T."post_id", T."upvote", T."username"
-        FROM "public"."vote" T
-        WHERE T."post_id" = $1
-      """
-      configuration: "postgresql_config"
-    )
+ 
   getSubredditList: [Subreddit]
     @dbquery(
       type: "postgresql"
@@ -277,19 +269,15 @@ type Mutation {
       dml: DELETE
       configuration: "postgresql_config"
     )
-  insertVote(
-    post_id: ID!
-    created_at: DateTime!
-    upvote: Int!
-    username: String!
-  ): Vote
+  
+  insertVote(post_id: ID!, username: String!, upvote: Boolean!): Vote
     @dbquery(
       type: "postgresql"
-      schema: "public"
       table: "vote"
       dml: INSERT
       configuration: "postgresql_config"
     )
+
   deleteVote(id: ID!): Vote
     @dbquery(
       type: "postgresql"
