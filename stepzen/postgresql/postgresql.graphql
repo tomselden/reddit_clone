@@ -219,19 +219,7 @@ type Query {
 These are some examples of mutations generated from the schema. Feel free to modify them or add your own.
 """
 type Mutation {
-  insertComment(
-    post_id: ID!
-    text: String!
-    created_at: DateTime!
-    username: String!
-  ): Comment
-    @dbquery(
-      type: "postgresql"
-      schema: "public"
-      table: "comment"
-      dml: INSERT
-      configuration: "postgresql_config"
-    )
+  
   deleteComment(id: ID!): Comment
     @dbquery(
       type: "postgresql"
@@ -259,6 +247,14 @@ type Mutation {
     @dbquery(
       type: "postgresql"
       table: "subreddit"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+
+  insertComment(post_id: ID!, username: String!, text: String!): Comment
+    @dbquery(
+      type: "postgresql"
+      table: "comment"
       dml: INSERT
       configuration: "postgresql_config"
     )
