@@ -16,7 +16,11 @@ type FormData = {
   subreddit: string;
 };
 
-function PostBox() {
+type Props = {
+  subreddit?: string;
+};
+
+function PostBox({ subreddit }: Props) {
   const { data: session } = useSession();
   const [addPost] = useMutation(ADD_POST, {
     refetchQueries: [GET_ALL_POSTS, "getPostList"],
@@ -43,7 +47,7 @@ function PostBox() {
       } = await client.query({
         query: GET_SUBREDDIT_BY_TOPIC,
         variables: {
-          topic: FormData.subreddit,
+          topic: subreddit || FormData.subreddit,
         },
       });
 
@@ -123,7 +127,11 @@ function PostBox() {
           className="flex-1 rounded-md bg-gray-50 p-2 pl-5 outline-none"
           type="text"
           placeholder={
-            session ? "Create a post by entering a title." : "Sign in to post."
+            session
+              ? subreddit
+                ? `Create a post in r/${subreddit}`
+                : "Create a post by entering a title."
+              : "Sign in to post."
           }
         />
 
@@ -149,16 +157,17 @@ function PostBox() {
             />
           </div>
 
-          {/* subreddit */}
-          <div className="flex items-center px-2">
-            <p className="min-w-[90px]">Subreddit:</p>
-            <input
-              className="m-2 flex-1 bg-blue-50 p-2 outline-none"
-              {...register("subreddit", { required: true })}
-              type="text"
-              placeholder="i.e. NextJS"
-            />
-          </div>
+          {!subreddit && (
+            <div className="flex items-center px-2">
+              <p className="min-w-[90px]">Subreddit:</p>
+              <input
+                className="m-2 flex-1 bg-blue-50 p-2 outline-none"
+                {...register("subreddit", { required: true })}
+                type="text"
+                placeholder="i.e. NextJS"
+              />
+            </div>
+          )}
 
           {imageBoxOpen && (
             <div className="flex items-center px-2">
