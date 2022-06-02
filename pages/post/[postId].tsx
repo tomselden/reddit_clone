@@ -19,7 +19,7 @@ function PostPage() {
   const router = useRouter();
   const { data: session } = useSession();
   const [addComment] = useMutation(ADD_COMMENT, {
-    refetchQueries: [GET_POST_BY_POST_ID, "getPostByPostId"],
+    refetchQueries: [GET_POST_BY_POST_ID, "getPostListById"],
   });
 
   const { data } = useQuery(GET_POST_BY_POST_ID, {
@@ -28,7 +28,7 @@ function PostPage() {
     },
   });
 
-  const post: Post = data?.getPostListByPostId;
+  const post: Post = data?.getPostListById;
 
   const {
     register,

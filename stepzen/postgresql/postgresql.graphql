@@ -138,11 +138,11 @@ type Query {
     configuration: "postgresql_config"
   )
 
-  getPostListById(post_id:ID!) : Post 
+  getPostListById(post_id: ID!) : Post 
     @dbquery(
       type: "postgresql"
       query: """
-      select *, "post".id as id from "post"
+      select * from "post"
       where "post"."id" = $1
       """
       configuration: "postgresql_config"

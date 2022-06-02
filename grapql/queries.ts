@@ -59,7 +59,7 @@ export const GET_ALL_POSTS = gql`
 
 export const GET_POST_BY_POST_ID = gql`
     query MyQuery($post_id: ID!) {
-        getPostByPostId(post_id: $post_id) {
+        getPostListById(post_id: $post_id) {
             body
             comments {
                 created_at
